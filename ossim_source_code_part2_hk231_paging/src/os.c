@@ -34,7 +34,7 @@ static struct ld_args
 {
 	char **path;
 	unsigned long *start_time;
-#ifdef MLQ_SCHED
+#ifdef MLFQ_SCHED
 	unsigned long *prio;
 #endif
 } ld_processes;
@@ -79,7 +79,7 @@ static void *cpu_routine(void *args)
 		else if (time_left == 0)
 		{
 			/* The process has done its job in current time slot */
-			proc->prio = min(MAX_PRIO, proc->prio + 1);
+			// proc->prio = min(MAX_PRIO, proc->prio + 1);
 			printf("\tCPU %d: Put process %2d to run queue\n",
 				   id, proc->pid);
 			put_proc(proc);
@@ -131,7 +131,7 @@ static void *ld_routine(void *args)
 	while (i < num_processes)
 	{
 		struct pcb_t *proc = load(ld_processes.path[i]);
-#ifdef MLQ_SCHED
+#ifdef MLFQ_SCHED
 		proc->prio = ld_processes.prio[i];
 #endif
 		while (current_time() < ld_processes.start_time[i])
@@ -145,13 +145,13 @@ static void *ld_routine(void *args)
 		proc->mswp = mswp;
 		proc->active_mswp = active_mswp;
 #endif
-#ifdef MLQ_SCHED
+#ifdef MLFQ_SCHED
 		printf("\tLoaded a process at %s, PID: %d PRIO: %ld\n",
 			   ld_processes.path[i], proc->pid, ld_processes.prio[i]);
 #else
 		printf("\tLoaded a process at %s, PID: %d PRIO: %d\n",
 			   ld_processes.path[i], proc->pid, proc->priority);
-#endif // MLQ_SCHED
+#endif // MLFQ_SCHED
 		add_proc(proc);
 		free(ld_processes.path[i]);
 		i++;
@@ -201,7 +201,7 @@ static void read_config(const char *path)
 #endif
 #endif
 
-#ifdef MLQ_SCHED
+#ifdef MLFQ_SCHED
 	ld_processes.prio = (unsigned long *)
 		malloc(sizeof(unsigned long) * num_processes);
 #endif
@@ -212,7 +212,7 @@ static void read_config(const char *path)
 		ld_processes.path[i][0] = '\0';
 		strcat(ld_processes.path[i], "input/proc/");
 		char proc[100];
-#ifdef MLQ_SCHED
+#ifdef MLFQ_SCHED
 		fscanf(file, "%lu %s %lu\n", &ld_processes.start_time[i], proc, &ld_processes.prio[i]);
 #else
 		fscanf(file, "%lu %s\n", &ld_processes.start_time[i], proc);

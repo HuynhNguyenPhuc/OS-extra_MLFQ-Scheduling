@@ -3,8 +3,8 @@
 
 #include "common.h"
 
-// #ifndef MLQ_SCHED
-// #define MLQ_SCHED
+// #ifndef MLFQ_SCHED
+// #define MLFQ_SCHED
 // #endif
 
 #define MAX_PRIO 140

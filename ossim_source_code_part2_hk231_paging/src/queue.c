@@ -25,7 +25,7 @@ struct pcb_t *dequeue(struct queue_t *q)
      * */
     if (empty(q))
         return NULL;
-#ifdef MLQ_SCHED
+#ifdef MLFQ_SCHED
     struct pcb_t *temp = q->proc[0];
     for (int i = 0; i < q->size - 1; ++i)
     {
