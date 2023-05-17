@@ -7,7 +7,7 @@
 // #define MLFQ_SCHED
 // #endif
 
-#define MAX_PRIO 140
+#define MAX_PRIO 10
 
 int queue_empty(void);
 

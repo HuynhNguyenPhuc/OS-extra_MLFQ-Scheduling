@@ -50,18 +50,6 @@ struct pcb_t * get_mlfq_proc(void) {
 	 * Remember to use lock to protect the queue.
 	 * */
 	pthread_mutex_lock(&queue_lock);
-	
-	// for (int i = 0; i < MAX_PRIO; i++) {
-    //     if (slot_left == 0 || empty(&mlfq_ready_queue[curr_prio])) {
-    //         curr_prio = (curr_prio + 1) % MAX_PRIO;
-    //         slot_left = MAX_PRIO - curr_prio;
-    //     }
-    //     else {
-	// 	    proc = dequeue(&mlfq_ready_queue[curr_prio]);
-    //         slot_left--;
-    //         break;
-    //     }
-	// }
     for (int i=0;i<MAX_PRIO;i++){
 		if (empty(&mlfq_ready_queue[i])!=1){
 			proc = dequeue(&mlfq_ready_queue[i]);
@@ -81,6 +69,7 @@ void put_mlfq_proc(struct pcb_t * proc) {
 
 void add_mlfq_proc(struct pcb_t * proc) {
 	pthread_mutex_lock(&queue_lock);
+	proc->prio = 0;
 	enqueue(&mlfq_ready_queue[proc->prio], proc);
 	pthread_mutex_unlock(&queue_lock);	
 }

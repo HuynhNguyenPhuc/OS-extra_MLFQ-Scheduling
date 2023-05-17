@@ -16,6 +16,10 @@ static int done = 0;
 
 pthread_mutex_t mem_lock;
 
+#ifdef _XOA_TRUOC_KHI_NOP_
+FILE* fptr;
+#endif
+
 #ifdef MM_PAGING
 static int memramsz;
 static int memswpsz[PAGING_MAX_MMSWP];
@@ -53,6 +57,9 @@ static void *cpu_routine(void *args)
 	/* Check for new process in ready queue */
 	int time_left = 0;
 	struct pcb_t *proc = NULL;
+	#ifdef _XOA_TRUOC_KHI_NOP_
+	fptr = fopen("time_output.txt","w");
+	#endif
 	while (1)
 	{
 		/* Check the status of current process */
@@ -72,6 +79,11 @@ static void *cpu_routine(void *args)
 			/* The porcess has finish it job */
 			printf("\tCPU %d: Processed %2d has finished\n",
 				   id, proc->pid);
+			proc->finish_time = current_time();
+			#ifdef _XOA_TRUOC_KHI_NOP_
+			fprintf(fptr,"\t Process %2d has: \n \t \t waiting time: %2ld \n \t \t turn around time: %2ld \n",
+			proc->pid, proc->waiting_time,proc->finish_time - proc->time_in);
+			#endif
 			free(proc);
 			proc = get_proc();
 			time_left = 0;
@@ -82,6 +94,10 @@ static void *cpu_routine(void *args)
 			// proc->prio = min(MAX_PRIO, proc->prio + 1);
 			printf("\tCPU %d: Put process %2d to run queue\n",
 				   id, proc->pid);
+			#ifdef _XOA_TRUOC_KHI_NOP_
+			proc->start_wating_time =current_time();
+			proc->is_running = -1;
+			#endif
 			put_proc(proc);
 			proc = get_proc();
 		}
@@ -102,9 +118,23 @@ static void *cpu_routine(void *args)
 		}
 		else if (time_left == 0)
 		{
+			#ifdef MLFQ_SCHED
+			printf("\tCPU %d: Dispatched process %2d  from the queue with PRIO %2d \n",
+				   id, proc->pid,proc->prio);
+			#else
 			printf("\tCPU %d: Dispatched process %2d\n",
 				   id, proc->pid);
+			#endif
+			#ifdef _XOA_TRUOC_KHI_NOP_
+			if (proc->is_running != 1){
+				proc->waiting_time += (current_time() - proc->start_wating_time);
+				proc->is_running = 1;
+			}
+			#endif
 			time_left = time_slot;
+			#ifdef MLFQ_SCHED
+			if (proc->prio != MAX_PRIO - 1) time_left *=(proc->prio+1);
+			#endif
 		}
 
 		/* Run current process */
@@ -146,12 +176,21 @@ static void *ld_routine(void *args)
 		proc->active_mswp = active_mswp;
 #endif
 #ifdef MLFQ_SCHED
-		printf("\tLoaded a process at %s, PID: %d PRIO: %ld\n",
-			   ld_processes.path[i], proc->pid, ld_processes.prio[i]);
+		// printf("\tLoaded a process at %s, PID: %d PRIO: %ld\n",
+		// 	   ld_processes.path[i], proc->pid, ld_processes.prio[i]);
+		printf("\tLoaded a process at %s, PID: %d\n",
+			   ld_processes.path[i], proc->pid);
 #else
 		printf("\tLoaded a process at %s, PID: %d PRIO: %d\n",
 			   ld_processes.path[i], proc->pid, proc->priority);
 #endif // MLFQ_SCHED
+#ifdef _XOA_TRUOC_KHI_NOP_
+		proc->finish_time = 0;
+		proc->time_in = current_time();
+		proc->start_wating_time = proc->time_in;
+		proc->waiting_time = 0;
+		proc->is_running = -1;
+#endif
 		add_proc(proc);
 		free(ld_processes.path[i]);
 		i++;
@@ -301,6 +340,8 @@ int main(int argc, char *argv[])
 
 	/* Stop timer */
 	stop_timer();
-
+#ifdef _XOA_TRUOC_KHI_NOP_
+	fclose(fptr);
+#endif
 	return 0;
 }
