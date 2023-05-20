@@ -16,7 +16,7 @@ static int done = 0;
 
 pthread_mutex_t mem_lock;
 
-#ifdef _XOA_TRUOC_KHI_NOP_
+#ifdef HELP_TO_COMPUTE
 FILE* fptr;
 #endif
 
@@ -57,7 +57,7 @@ static void *cpu_routine(void *args)
 	/* Check for new process in ready queue */
 	int time_left = 0;
 	struct pcb_t *proc = NULL;
-	#ifdef _XOA_TRUOC_KHI_NOP_
+	#ifdef HELP_TO_COMPUTE
 	fptr = fopen("time_output.txt","w");
 	#endif
 	while (1)
@@ -79,8 +79,8 @@ static void *cpu_routine(void *args)
 			/* The porcess has finish it job */
 			printf("\tCPU %d: Processed %2d has finished\n",
 				   id, proc->pid);
+			#ifdef HELP_TO_COMPUTE
 			proc->finish_time = current_time();
-			#ifdef _XOA_TRUOC_KHI_NOP_
 			fprintf(fptr,"\t Process %2d has: \n \t \t waiting time: %2ld \n \t \t turn around time: %2ld \n",
 			proc->pid, proc->waiting_time,proc->finish_time - proc->time_in);
 			#endif
@@ -94,7 +94,7 @@ static void *cpu_routine(void *args)
 			// proc->prio = min(MAX_PRIO, proc->prio + 1);
 			printf("\tCPU %d: Put process %2d to run queue\n",
 				   id, proc->pid);
-			#ifdef _XOA_TRUOC_KHI_NOP_
+			#ifdef HELP_TO_COMPUTE
 			proc->start_wating_time =current_time();
 			proc->is_running = -1;
 			#endif
@@ -125,7 +125,7 @@ static void *cpu_routine(void *args)
 			printf("\tCPU %d: Dispatched process %2d\n",
 				   id, proc->pid);
 			#endif
-			#ifdef _XOA_TRUOC_KHI_NOP_
+			#ifdef HELP_TO_COMPUTE
 			if (proc->is_running != 1){
 				proc->waiting_time += (current_time() - proc->start_wating_time);
 				proc->is_running = 1;
@@ -184,7 +184,7 @@ static void *ld_routine(void *args)
 		printf("\tLoaded a process at %s, PID: %d PRIO: %d\n",
 			   ld_processes.path[i], proc->pid, proc->priority);
 #endif // MLFQ_SCHED
-#ifdef _XOA_TRUOC_KHI_NOP_
+#ifdef HELP_TO_COMPUTE
 		proc->finish_time = 0;
 		proc->time_in = current_time();
 		proc->start_wating_time = proc->time_in;
@@ -340,7 +340,7 @@ int main(int argc, char *argv[])
 
 	/* Stop timer */
 	stop_timer();
-#ifdef _XOA_TRUOC_KHI_NOP_
+#ifdef HELP_TO_COMPUTE
 	fclose(fptr);
 #endif
 	return 0;

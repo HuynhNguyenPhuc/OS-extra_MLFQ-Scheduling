@@ -83,7 +83,7 @@ struct pcb_t {
 #endif
 	struct page_table_t * page_table; // Page table
 	uint32_t bp;	// Break pointer
-#ifdef _XOA_TRUOC_KHI_NOP_
+#ifdef HELP_TO_COMPUTE
 	uint64_t time_in;
 	uint64_t finish_time;
 	uint64_t waiting_time;

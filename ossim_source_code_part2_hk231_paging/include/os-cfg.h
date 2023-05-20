@@ -11,5 +11,5 @@
 #define IODUMP 1
 #define PAGETBL_DUMP 1
 
-#define _XOA_TRUOC_KHI_NOP_ 1
+// #define HELP_TO_COMPUTE 1
 #endif
